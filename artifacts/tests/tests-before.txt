@@ -1,0 +1,80 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.9.6, pytest-8.4.2, pluggy-1.6.0 -- /Users/enzotokushige/dvpwa-cs282/.venv-app/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/enzotokushige/dvpwa-cs282
+plugins: asyncio-1.2.0, aiohttp-1.1.0
+asyncio: mode=strict, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 3 items
+
+tests/security/test_session_fixation.py::test_session_id_is_regenerated_on_login FAILED [ 33%]
+tests/security/test_sqli_student_create.py::test_student_create_uses_bound_parameters FAILED [ 66%]
+tests/security/test_xss_autoescape.py::test_review_text_is_html_escaped FAILED [100%]
+
+=================================== FAILURES ===================================
+___________________ test_session_id_is_regenerated_on_login ____________________
+
+    def test_session_id_is_regenerated_on_login():
+        id_before, id_after = asyncio.new_event_loop().run_until_complete(_scenario())
+>       assert id_after != id_before, (
+            "Session Fixation: o id de sessao apos o login e o mesmo de antes "
+            f"({id_before}); a sessao deveria ser regenerada no login."
+        )
+E       AssertionError: Session Fixation: o id de sessao apos o login e o mesmo de antes (c4523a98f33a4a28bd4075c9723b7603); a sessao deveria ser regenerada no login.
+E       assert 'c4523a98f33a4a28bd4075c9723b7603' != 'c4523a98f33a4a28bd4075c9723b7603'
+
+tests/security/test_session_fixation.py:142: AssertionError
+__________________ test_student_create_uses_bound_parameters ___________________
+
+    def test_student_create_uses_bound_parameters():
+        cursor = _RecordingCursor()
+        conn = _RecordingConn(cursor)
+    
+        asyncio.new_event_loop().run_until_complete(
+            Student.create(conn, PAYLOAD)
+        )
+    
+        assert cursor.query is not None, "execute() nao foi chamado"
+    
+        # 1) O payload nao pode estar embutido no texto SQL.
+>       assert "DROP TABLE" not in cursor.query.upper(), (
+            "SQL Injection: payload do usuario foi concatenado no SQL:\n"
+            f"{cursor.query}"
+        )
+E       AssertionError: SQL Injection: payload do usuario foi concatenado no SQL:
+E         INSERT INTO students (name) VALUES ('Robert'); DROP TABLE students;--')
+E       assert 'DROP TABLE' not in "INSERT INTO...TUDENTS;--')"
+E         
+E         'DROP TABLE' is contained here:
+E           INSERT INTO STUDENTS (NAME) VALUES ('ROBERT'); DROP TABLE STUDENTS;--')
+E         ?                                                ++++++++++
+
+tests/security/test_sqli_student_create.py:56: AssertionError
+_______________________ test_review_text_is_html_escaped _______________________
+
+    def test_review_text_is_html_escaped():
+        output = _render_review(PAYLOAD)
+    
+>       assert "<script>" not in output, (
+            "Stored XSS: review_text foi renderizado sem escape (autoescape desligado):\n"
+            f"{output}"
+        )
+E       AssertionError: Stored XSS: review_text foi renderizado sem escape (autoescape desligado):
+E         <li><script>alert('xss')</script></li>
+E       assert '<script>' not in '<li><script...script></li>'
+E         
+E         '<script>' is contained here:
+E           <li><script>alert('xss')</script></li>
+E         ?    ++++++++
+
+tests/security/test_xss_autoescape.py:37: AssertionError
+=============================== warnings summary ===============================
+tests/security/test_xss_autoescape.py::test_review_text_is_html_escaped
+  /Users/enzotokushige/dvpwa-cs282/sqli/app.py:23: DeprecationWarning: debug argument is deprecated
+    app = Application(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/security/test_session_fixation.py::test_session_id_is_regenerated_on_login
+FAILED tests/security/test_sqli_student_create.py::test_student_create_uses_bound_parameters
+FAILED tests/security/test_xss_autoescape.py::test_review_text_is_html_escaped
+========================= 3 failed, 1 warning in 0.04s =========================

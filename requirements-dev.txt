@@ -1,0 +1,11 @@
+# Dependencias para rodar os testes de regressao de seguranca (tests/security).
+# Nao exigem PostgreSQL/Redis/Docker: os modulos nativos sao substituidos por
+# stubs em tests/security/conftest.py.
+aiohttp>=3.9,<4
+aiohttp-jinja2>=1.5
+aiohttp-session>=2.11
+jinja2>=3.0
+trafaret>=2.0
+trafaret-config>=2.0
+pyyaml>=5.4
+pytest>=7.0

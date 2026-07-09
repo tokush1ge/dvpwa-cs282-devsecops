@@ -1,0 +1,9 @@
+.python-version
+.idea/
+*.pyc
+__pycache__/
+
+# Ambientes virtuais locais e caches (nao versionar)
+.venv-tools/
+.venv-app/
+.pip-cache/

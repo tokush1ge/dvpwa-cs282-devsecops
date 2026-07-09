@@ -1,0 +1,65 @@
+# Esteira DevSecOps para o DVPWA - CS-282 (trilha basica)
+#
+#   scan_before   -> roda Bandit, Semgrep, pip-audit e Gitleaks (antes dos patches)
+#   build_prompt  -> gera o prompt de triagem a partir dos relatorios
+#   validate      -> roda os testes de regressao dos exploits escolhidos
+#   scan_after    -> roda os scanners de novo e compara before x after
+#
+# Observacao: a triagem e a remediacao com LLM sao MANUAIS (trilha basica);
+# suas saidas ja versionadas estao em artifacts/llm/.
+
+stages:
+  - scan_before
+  - prompt
+  - validate
+  - scan_after
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip-cache"
+
+.install_scanners: &install_scanners
+  - pip install bandit pip-audit semgrep pytest
+  - apt-get update && apt-get install -y git curl
+  - curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks/master/install.sh | sh -s -- -b /usr/local/bin
+
+scan_before:
+  stage: scan_before
+  image: python:3.11
+  before_script: *install_scanners
+  script:
+    - bash scripts/run_scans.sh artifacts/scan-before
+  artifacts:
+    when: always
+    paths:
+      - artifacts/scan-before/
+
+build_triage_prompt:
+  stage: prompt
+  image: python:3.11
+  script:
+    - mkdir -p artifacts/prompts
+    - python scripts/build_triage_prompt.py artifacts/scan-before > artifacts/prompts/triage-prompt.md
+  artifacts:
+    when: always
+    paths:
+      - artifacts/prompts/triage-prompt.md
+
+validate_after:
+  stage: validate
+  image: python:3.11
+  script:
+    # deps minimas para importar o app nos testes de regressao (sem banco/redis)
+    - pip install -r requirements-dev.txt
+    - pytest -v tests/security
+
+scan_after:
+  stage: scan_after
+  image: python:3.11
+  before_script: *install_scanners
+  script:
+    - bash scripts/run_scans.sh artifacts/scan-after
+    - python scripts/compare_scans.py artifacts/scan-before artifacts/scan-after > artifacts/scan-after/comparison.md
+  artifacts:
+    when: always
+    paths:
+      - artifacts/scan-after/

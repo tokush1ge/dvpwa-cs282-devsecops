@@ -1,0 +1,14 @@
+# Config do Gitleaks para a esteira do DVPWA.
+# Mantem as regras padrao e apenas ignora diretorios que nao fazem parte do
+# codigo-fonte analisado (ambientes virtuais locais e assets estaticos de
+# terceiros), reduzindo falsos positivos e ruido no relatorio.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Ignora venvs locais e assets estaticos de terceiros"
+paths = [
+  '''\.venv-tools/.*''',
+  '''\.venv-app/.*''',
+  '''sqli/static/.*''',
+]
