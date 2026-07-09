@@ -39,9 +39,11 @@ class Student(NamedTuple):
 
     @staticmethod
     async def create(conn: Connection, name: str):
-        q = ("INSERT INTO students (name) "
-             "VALUES ('%(name)s')" % {'name': name})
+        # Query parametrizada: o driver trata `name` como parametro vinculado,
+        # nunca como parte do texto SQL (corrige SQL Injection).
+        q = 'INSERT INTO students (name) VALUES (%(name)s)'
+        params = {'name': name}
         async with conn.cursor() as cur:
-            await cur.execute(q)
+            await cur.execute(q, params)
 
 

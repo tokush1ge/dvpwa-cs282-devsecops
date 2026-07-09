@@ -30,9 +30,11 @@ def init(argv):
     )
     app['config'] = config
 
+    # autoescape=True: o Jinja2 escapa HTML por padrao, corrigindo o Stored XSS
+    # em campos renderizados sem escape (ex.: review.review_text em course.jinja2).
     setup_jinja(app, loader=PackageLoader('sqli', 'templates'),
                 context_processors=[csrf_processor, auth_user_processor],
-                autoescape=False)
+                autoescape=True)
     setup_database(app)
     setup_redis(app)
     setup_routes(app)

@@ -1,0 +1,19 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.9.6, pytest-8.4.2, pluggy-1.6.0 -- /Users/enzotokushige/dvpwa-cs282/.venv-app/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/enzotokushige/dvpwa-cs282
+plugins: asyncio-1.2.0, aiohttp-1.1.0
+asyncio: mode=strict, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 3 items
+
+tests/security/test_session_fixation.py::test_session_id_is_regenerated_on_login PASSED [ 33%]
+tests/security/test_sqli_student_create.py::test_student_create_uses_bound_parameters PASSED [ 66%]
+tests/security/test_xss_autoescape.py::test_review_text_is_html_escaped PASSED [100%]
+
+=============================== warnings summary ===============================
+tests/security/test_xss_autoescape.py::test_review_text_is_html_escaped
+  /Users/enzotokushige/dvpwa-cs282/sqli/app.py:23: DeprecationWarning: debug argument is deprecated
+    app = Application(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+========================= 3 passed, 1 warning in 0.03s =========================
