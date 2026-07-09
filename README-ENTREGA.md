@@ -4,6 +4,12 @@ Este repositorio contem o DVPWA e uma esteira reproduzivel de seguranca:
 **scan inicial -> triagem com LLM -> remediacao com LLM -> patches manuais ->
 segunda esteira de validacao**.
 
+- **Repositorio GitHub:** https://github.com/tokush1ge/dvpwa-cs282-devsecops
+- **Pull Request com os patches:** https://github.com/tokush1ge/dvpwa-cs282-devsecops/pull/1
+- **Historico de commits** (evidencia dos patches manuais) preservado em `.git/`
+  dentro deste ZIP: use `git log --oneline` e `git log --oneline main` para ver
+  o baseline vulneravel e os 3 commits `fix:`.
+
 - **Relatorio final (leia primeiro):** [`RELATORIO-FINAL.md`](RELATORIO-FINAL.md)
 - **Comparacao antes/depois:** [`artifacts/scan-after/comparison.md`](artifacts/scan-after/comparison.md)
 
