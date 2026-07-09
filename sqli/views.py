@@ -5,7 +5,7 @@ from itertools import groupby
 from aiohttp.web import Request, HTTPFound
 from aiohttp.web_exceptions import HTTPNotFound, HTTPForbidden
 from aiohttp_jinja2 import template
-from aiohttp_session import get_session
+from aiohttp_session import get_session, new_session
 from trafaret import DataError
 
 from sqli.dao.course import Course
@@ -39,6 +39,9 @@ async def index(request: Request):
         async with app['db'].acquire() as conn:
             user = await User.get_by_username(conn, username)
         if user and user.check_password(password):
+            # Regenera a sessao no login para invalidar qualquer id fixado
+            # antes da autenticacao (corrige Session Fixation).
+            session = await new_session(request)
             session['user_id'] = user.id
             auth_user = user
         else:
